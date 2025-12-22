@@ -14,7 +14,7 @@ def main():
     mlflow.autolog()
 
     # Pastikan path sesuai struktur MLProject
-    df = pd.read_csv("namadataset_preprocessing/telco_customer_churn_clean.csv")
+    df = pd.read_csv("telco_customer_churn_clean.csv")
 
     X = df.drop(["Churn", "customerID"], axis=1)
     y = df["Churn"]
