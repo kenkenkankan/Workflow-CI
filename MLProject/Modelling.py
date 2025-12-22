@@ -7,11 +7,14 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
 
 
 def main():
-    df = pd.read_csv("telco_customer_churn_clean.csv")
+    # WAJIB: autolog untuk Kriteria 3 (konsisten dgn Kriteria 2)
+    mlflow.autolog()
+
+    # Pastikan path sesuai struktur MLProject
+    df = pd.read_csv("namadataset_preprocessing/telco_customer_churn_clean.csv")
 
     X = df.drop(["Churn", "customerID"], axis=1)
     y = df["Churn"]
@@ -37,14 +40,10 @@ def main():
         X, y, test_size=0.2, random_state=42
     )
 
-    with mlflow.start_run():
+    # TANPA manual logging
+    with mlflow.start_run(run_name="CI_Autolog_Model"):
         model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-
-        acc = accuracy_score(y_test, y_pred)
-        mlflow.log_metric("accuracy", acc)
-
-        mlflow.sklearn.log_model(model, "model")
+        model.score(X_test, y_test)
 
 
 if __name__ == "__main__":
