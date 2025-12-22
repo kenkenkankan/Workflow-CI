@@ -1,0 +1,75 @@
+name: Telco Churn - CI Training MLflow
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2. Setup Miniconda
+      - name: Setup Miniconda
+        uses: conda-incubator/setup-miniconda@v3
+        with:
+          python-version: "3.10"
+          miniconda-version: "latest"
+          auto-activate-base: false
+
+      # 3. Install dependencies (mlflow + sklearn + pandas)
+      - name: Install dependencies
+        shell: bash -l {0}
+        run: |
+          pip install --upgrade pip
+          pip install mlflow[extras] scikit-learn pandas numpy joblib cloudpickle
+
+      # 4. Run MLflow Project (Training)
+      - name: Train model using MLflow Projects
+        working-directory: MLProject
+        shell: bash -l {0}
+        run: |
+          mlflow run . --env-manager=local
+
+          echo "Training selesai!"
+          echo "Folder mlruns berada di: $(pwd)/mlruns"
+
+      # 5. Commit & push MLflow artifacts (mlruns)
+      - name: Commit and push mlruns to repository
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git pull origin main --rebase
+
+          git add MLProject/mlruns || echo "Tidak ada perubahan pada mlruns"
+
+          if git diff-index --quiet HEAD --; then
+            echo "Tidak ada perubahan baru di mlruns untuk di-commit"
+          else
+            git commit -m "ci: update mlruns after training (run: ${{ github.run_number }})"
+            git push origin main
+            echo "mlruns berhasil di-commit dan di-push!"
+          fi
+
+      # 6. Summary (optional, tapi bagus untuk laporan)
+      - name: Summary
+        run: |
+          echo "========================================"
+          echo "PIPELINE CI BERHASIL SELESAI"
+          echo "✓ Model dilatih menggunakan MLflow Project"
+          echo "✓ Training dipicu otomatis oleh GitHub Actions"
+          echo "✓ Environment reproducible (conda)"
+          echo "✓ Metrics & model tercatat di MLflow (mlruns)"
+          echo "✓ Artefak disimpan di repository"
+          echo "========================================"
