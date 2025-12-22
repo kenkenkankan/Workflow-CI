@@ -2,4 +2,5 @@ name: telco-churn-ci
 
 entry_points:
   main:
-    command: "python modelling.py"
+    command: "python Modelling.py"
+
