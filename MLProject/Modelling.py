@@ -7,14 +7,16 @@ from sklearn.linear_model import LogisticRegression
 
 
 def main():
-    # WAJIB: autolog (konsisten dgn Kriteria 2)
     mlflow.autolog()
 
-    # Dataset hasil preprocessing Kriteria 1
-    df = pd.read_csv("telco_customer_churn_clean.csv")
+    # Dataset HASIL preprocessing (numerik semua)
+    df = pd.read_csv(
+        "preprocessing/preprocessing/telco_customer_churn_clean/telco_customer_churn_clean.csv"
+    )
 
-    X = df.drop(columns=["Churn", "customerID"])
+    # Target
     y = df["Churn"]
+    X = df.drop(columns=["Churn"])
 
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=42
@@ -22,7 +24,7 @@ def main():
 
     model = LogisticRegression(max_iter=1000)
 
-    with mlflow.start_run(run_name="CI_Model_No_Preprocessing"):
+    with mlflow.start_run(run_name="CI_Autolog_Model"):
         model.fit(X_train, y_train)
         model.score(X_test, y_test)
 
