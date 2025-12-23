@@ -11,7 +11,7 @@ def main():
 
     # Dataset HASIL preprocessing (numerik semua)
     df = pd.read_csv(
-        "preprocessing/preprocessing/telco_customer_churn_clean/telco_customer_churn_clean.csv"
+        "MLProject/telco_customer_churn_clean.csv"
     )
 
     # Target
